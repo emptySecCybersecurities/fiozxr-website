@@ -1,0 +1,22 @@
+{
+  "name": "fiozxr-website",
+  "version": "1.0.0",
+  "description": "Animated portfolio site and motion-graphics opener for **fiozxrrahman**, plus the agent skills collection behind the work.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emptySecCybersecurities/fiozxr-website.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/emptySecCybersecurities/fiozxr-website/issues"
+  },
+  "homepage": "https://github.com/emptySecCybersecurities/fiozxr-website#readme",
+  "dependencies": {
+    "playwright": "^1.65.0"
+  }
+}
