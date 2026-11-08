@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>fiozxrrahman — Creative Developer</title>
+<meta name="description" content="fiozxrrahman — creative developer building interfaces, motion graphics, and experiments. Find the work on GitHub." />
+<meta property="og:title" content="fiozxrrahman — Creative Developer" />
+<meta property="og:description" content="Code, motion, and interfaces." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='16' font-weight='700' text-anchor='middle' fill='%2307070b'%3Ef%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #07070b;
+    --bg-2: #0c0c13;
+    --text: #ececf1;
+    --text-dim: #9b9bad;
+    --line: rgba(255, 255, 255, 0.09);
+    --accent-a: #7c5cff;
+    --accent-b: #22d3ee;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --radius: 16px;
+    --font-display: "Space Grotesk", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent-a); color: #fff; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  .orb--a {
+    width: 520px; height: 520px;
+    top: -180px; right: -140px;
+    background: radial-gradient(circle at 30% 30%, rgba(124, 92, 255, 0.7), transparent 65%);
+    animation: drift-a 22s var(--ease-in-out) infinite alternate;
+  }
+
+  .orb--b {
+    width: 460px; height: 460px;
+    top: 40%; left: -200px;
+    background: radial-gradient(circle at 60% 40%, rgba(34, 211, 238, 0.55), transparent 65%);
+    animation: drift-b 26s var(--ease-in-out) infinite alternate;
+  }
+
+  .orb--c {
+    width: 380px; height: 380px;
+    bottom: -140px; right: 12%;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 138, 76, 0.4), transparent 65%);
+    animation: drift-c 30s var(--ease-in-out) infinite alternate;
+  }
+
+  @keyframes drift-a {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-80px, 60px, 0) scale(1.12); }
+  }
+  @keyframes drift-b {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(90px, -70px, 0) scale(1.08); }
+  }
+  @keyframes drift-c {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to   { transform: translate3d(-60px, -50px, 0) scale(1.15); }
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Nav ---------- */
+
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    background: rgba(7, 7, 11, 0.72);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo__dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .logo:hover .logo__dot {
+      transform: rotate(180deg) scale(1.25);
+      box-shadow: 0 0 18px rgba(124, 92, 255, 0.8);
+    }
+  }
+
+  .nav__links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav__links a {
+    position: relative;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    padding: 6px 0;
+    transition: color 0.2s ease;
+  }
+
+  .nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav__links a:hover { color: var(--text); }
+    .nav__links a:hover::after { transform: scaleX(1); }
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: 120px 0 80px;
+    overflow: hidden;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  .eyebrow__pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent-b);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.9);
+    animation: pulse 2.4s ease-out infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    70% { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(44px, 9vw, 96px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+  }
+
+  .hero-title .w {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+  .hero-title .wi {
+    display: inline-block;
+    transform: translateY(110%);
+  }
+
+  .hero.in .hero-title .wi {
+    animation: rise 0.7s var(--ease-out) forwards;
+  }
+
+  @keyframes rise {
+    to { transform: translateY(0); }
+  }
+
+  .hero-title .accent {
+    background: linear-gradient(100deg, var(--accent-a), var(--accent-b));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-sub {
+    max-width: 560px;
+    font-size: 18px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 500 15px var(--font-body);
+    padding: 13px 24px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn:focus-visible { outline: 2px solid var(--accent-b); outline-offset: 3px; }
+
+  .btn--primary {
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    color: #07070b;
+    font-weight: 600;
+    box-shadow: 0 8px 30px rgba(124, 92, 255, 0.35);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(124, 92, 255, 0.5);
+    }
+  }
+
+  .btn--ghost {
+    border-color: var(--line);
+    color: var(--text);
+    background: transparent;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn--ghost:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateY(-2px);
+    }
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .scroll-hint__line {
+    width: 1px; height: 44px;
+    background: linear-gradient(to bottom, var(--accent-a), transparent);
+    transform-origin: top;
+    animation: hintDrop 2s var(--ease-in-out) infinite;
+  }
+
+  @keyframes hintDrop {
+    0% { transform: scaleY(0); opacity: 0; }
+    40% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 0; }
+  }
+
+  /* ---------- Marquee ---------- */
+
+  .marquee {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    padding: 20px 0;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: scrollX 28s linear infinite;
+  }
+
+  .marquee__group {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding-right: 40px;
+  }
+
+  .marquee__item {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--text-dim);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .marquee__item::after {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+  }
+
+  @keyframes scrollX {
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- Sections ---------- */
+
+  section { position: relative; padding: 110px 0; }
+
+  .section-head {
+    margin-bottom: 56px;
+  }
+
+  .section-tag {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-b);
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  /* Reveal on scroll */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.6s ease, transform 0.6s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+
+  .reveal.in-view {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* About */
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 56px;
+    align-items: start;
+  }
+
+  .about-copy p {
+    color: var(--text-dim);
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  .about-copy p strong { color: var(--text); font-weight: 600; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    background: var(--bg-2);
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+
+  .stat__num {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(120deg, var(--text), var(--text-dim));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat__label {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .stat:hover {
+      transform: translateY(-4px);
+      border-color: rgba(124, 92, 255, 0.4);
+    }
+  }
+
+  /* Cards (what I do / projects) */
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-2);
+    padding: 28px;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.3s ease;
+  }
+
+  .card__icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    background: rgba(124, 92, 255, 0.14);
+    border: 1px solid rgba(124, 92, 255, 0.25);
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .card__title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+
+  .card__body {
+    font-size: 15px;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  .card__link {
+    margin-top: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-b);
+  }
+
+  .card__link .arrow {
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(124, 92, 255, 0.45);
+      box-shadow: 0 24px 50px -28px rgba(124, 92, 255, 0.55);
+    }
+    .card:hover .card__icon {
+      transform: rotate(-8deg) scale(1.08);
+    }
+    .card:hover .card__link .arrow {
+      transform: translateX(5px);
+    }
+  }
+
+  /* Contact */
+
+  .contact {
+    text-align: center;
+  }
+
+  .contact-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5.5vw, 60px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    margin-bottom: 18px;
+  }
+
+  .contact-sub {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+
+  /* ---------- Footer ---------- */
+
+  .footer {
+    border-top: 1px solid var(--line);
+    padding: 36px 0;
+  }
+
+  .footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  .footer__links {
+    display: flex;
+    gap: 22px;
+  }
+
+  .footer__links a {
+    transition: color 0.2s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .footer__links a:hover { color: var(--text); }
+  }
+
+  /* ---------- Responsive ---------- */
+
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; gap: 32px; }
+    .card-grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .nav__links { display: none; }
+    .hero { min-height: auto; }
+  }
+
+  @media (max-width: 560px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .hero-cta .btn { width: 100%; justify-content: center; }
+  }
+
+  /* ---------- Reduced motion ---------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .orb, .marquee__track, .scroll-hint__line, .eyebrow__pulse {
+      animation: none !important;
+    }
+    .hero-title .wi {
+      transform: none;
+    }
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ======= Nav ======= -->
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="logo" href="#top" aria-label="fiozxrrahman home">
+      <span class="logo__dot" aria-hidden="true"></span>
+      fiozxrrahman
+    </a>
+    <nav aria-label="Primary">
+      <ul class="nav__links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ======= Hero ======= -->
+  <section class="hero" aria-label="Intro">
+    <div class="orb orb--a" aria-hidden="true"></div>
+    <div class="orb orb--b" aria-hidden="true"></div>
+    <div class="orb orb--c" aria-hidden="true"></div>
+
+    <div class="wrap">
+      <p class="eyebrow reveal">
+        <span class="eyebrow__pulse" aria-hidden="true"></span>
+        Creative developer · motion &amp; code
+      </p>
+
+      <h1 class="hero-title" id="hero-title" aria-label="I build motion into everything"></h1>
+
+      <p class="hero-sub reveal" style="--d:120ms">
+        I'm fiozxrrahman — I design and build fast, animated experiences for the web.
+        Code that moves, interfaces that feel alive, and experiments that ship.
+      </p>
+
+      <div class="hero-cta reveal" style="--d:200ms">
+        <a class="btn btn--primary" href="#projects">
+          See the work
+        </a>
+        <a class="btn btn--ghost" href="https://github.com/fiozxr" target="_blank" rel="noopener">
+          GitHub
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Scroll</span>
+      <span class="scroll-hint__line"></span>
+    </div>
+  </section>
+
+  <!-- ======= Marquee ======= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <div class="marquee__group">
+        <span class="marquee__item">Motion graphics</span>
+        <span class="marquee__item">Kinetic typography</span>
+        <span class="marquee__item">Interfaces</span>
+        <span class="marquee__item">Creative code</span>
+        <span class="marquee__item">Experiments</span>
+      </div>
+      <div class="marquee__group">
+        <span class="marquee__item">Motion graphics</span>
+        <span class="marquee__item">Kinetic typography</span>
+        <span class="marquee__item">Interfaces</span>
+        <span class="marquee__item">Creative code</span>
+        <span class="marquee__item">Experiments</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= About ======= -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="section-tag">About</p>
+        <h2 class="section-title">Code, motion, and a spirit of curiosity.</h2>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-copy reveal">
+          <p>
+            <strong>fiozxrrahman</strong> is a creative developer exploring the space where
+            engineering meets motion. I build websites and interactions that feel
+            alive — smooth, fast, and considered down to the last frame.
+          </p>
+          <p>
+            Most of the work lives in the open on GitHub. What you won't find here
+            is filler — just high-quality, moving interfaces and honest code.
+          </p>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat reveal" style="--d:0ms">
+            <span class="stat__num">100%</span>
+            <span class="stat__label">Built with code — no templates</span>
+          </div>
+          <div class="stat reveal" style="--d:80ms">
+            <span class="stat__num">60fps</span>
+            <span class="stat__label">Animation on transform &amp; opacity only</span>
+          </div>
+          <div class="stat reveal" style="--d:160ms">
+            <span class="stat__num">Open</span>
+            <span class="stat__label">Projects on GitHub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Work / What I do ======= -->
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="section-tag">What I do</p>
+        <h2 class="section-title">Interfaces with intent.</h2>
+      </div>
+
+      <div class="card-grid">
+        <article class="card reveal" style="--d:0ms">
+          <div class="card__icon" aria-hidden="true">◆</div>
+          <h3 class="card__title">Motion graphics</h3>
+          <p class="card__body">
+            Cinematic hero moments, kinetic typography, and scroll-driven scenes —
+            designed from the decision chain up, never just decorative.
+          </p>
+        </article>
+
+        <article class="card reveal" style="--d:90ms">
+          <div class="card__icon" aria-hidden="true">◐</div>
+          <h3 class="card__title">Interfaces</h3>
+          <p class="card__body">
+            Thoughtful UI with micro-interactions: hover, press, state changes —
+            fast feedback, GPU-friendly properties, reduced-motion respected.
+          </p>
+        </article>
+
+        <article class="card reveal" style="--d:180ms">
+          <div class="card__icon" aria-hidden="true">⬡</div>
+          <h3 class="card__title">Experiments</h3>
+          <p class="card__body">
+            Creative coding and open-source side quests — new tools, new libraries,
+            and a constant drive to make things that move beautifully.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Projects ======= -->
+  <section id="projects">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="section-tag">Projects</p>
+        <h2 class="section-title">Open work, on GitHub.</h2>
+      </div>
+
+      <div class="card-grid">
+        <article class="card reveal" style="--d:0ms">
+          <div class="card__icon" aria-hidden="true">⬇</div>
+          <h3 class="card__title">GitHub Profile</h3>
+          <p class="card__body">
+            Repositories, contributions, and pinned projects — the full archive of
+            public work, in one place.
+          </p>
+          <a class="card__link" href="https://github.com/fiozxr" target="_blank" rel="noopener">
+            github.com/fiozxr <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </article>
+
+        <article class="card reveal" style="--d:90ms">
+          <div class="card__icon" aria-hidden="true">✳</div>
+          <h3 class="card__title">Motion Lab</h3>
+          <p class="card__body">
+            Animated one-offs and motion studies — skill-driven experiments in
+            kinetic type, canvas, and web animation.
+          </p>
+          <a class="card__link" href="https://github.com/fiozxr" target="_blank" rel="noopener">
+            Explore repos <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </article>
+
+        <article class="card reveal" style="--d:180ms">
+          <div class="card__icon" aria-hidden="true">⌘</div>
+          <h3 class="card__title">Open Source</h3>
+          <p class="card__body">
+            Code that's free to read, fork, and learn from — built in the open,
+            shared with the community.
+          </p>
+          <a class="card__link" href="https://github.com/fiozxr?tab=repositories" target="_blank" rel="noopener">
+            View repositories <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Contact ======= -->
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <h2 class="contact-title reveal">Let's build something that moves.</h2>
+      <p class="contact-sub reveal" style="--d:90ms">
+        All the work is public — explore the profile and see what's been shipped.
+      </p>
+      <div class="hero-cta reveal" style="--d:180ms; justify-content:center;">
+        <a class="btn btn--primary" href="https://github.com/fiozxr" target="_blank" rel="noopener">
+          Visit GitHub
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ======= Footer ======= -->
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <span>© <span id="year"></span> fiozxrrahman</span>
+    <div class="footer__links">
+      <a href="https://github.com/fiozxr" target="_blank" rel="noopener">GitHub</a>
+      <a href="#top">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- Hero kinetic typography ----------
+  var hero = document.getElementById("hero-title");
+  var words = "I build motion into everything".split(" ");
+  hero.innerHTML = words.map(function (w, i) {
+    return '<span class="w"><span class="wi">' + w + "</span></span> ";
+  }).join("");
+  var frags = hero.querySelectorAll(".wi");
+  frags.forEach(function (el, i) {
+    el.style.animationDelay = (80 + i * 60) + "ms";
+  });
+  // highlight the last two words
+  var ws = hero.querySelectorAll(".w");
+  if (ws.length >= 2) {
+    var last = ws[ws.length - 1];
+    var prev = ws[ws.length - 2];
+    last.querySelector(".wi").classList.add("accent");
+    prev.querySelector(".wi").classList.add("accent");
+  }
+  requestAnimationFrame(function () {
+    document.body.classList.add("hero");
+    requestAnimationFrame(function () {
+      document.querySelector(".hero").classList.add("in");
+    });
+  });
+
+  // ---------- Scroll reveal ----------
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+
+  document.querySelectorAll(".reveal").forEach(function (el) {
+    io.observe(el);
+  });
+
+  // ---------- Footer year ----------
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

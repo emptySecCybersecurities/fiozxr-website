@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>fiozxrrahman — motion opener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+:root{
+  --accent:#7c5cff;
+  --accent-lit:#22d3ee;
+  --ink:#ececf1;
+  --dim:#9b9bad;
+  --base:#07070b;
+}
+#stage{position:fixed;left:50%;top:50%;width:1920px;height:1080px;
+  transform:translate(-50%,-50%) scale(1);overflow:hidden;background:var(--base)}
+#world{position:absolute;inset:0;will-change:transform}
+
+/* dunia */
+.orb{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen}
+.orb--v{width:760px;height:760px;left:-180px;top:-240px;
+  background:radial-gradient(circle at 35% 35%, rgba(124,92,255,.85), transparent 68%)}
+.orb--c{width:640px;height:640px;right:-160px;top:220px;
+  background:radial-gradient(circle at 60% 40%, rgba(34,211,238,.7), transparent 68%)}
+.orb--o{width:480px;height:480px;left:360px;bottom:-220px;
+  background:radial-gradient(circle at 50% 50%, rgba(255,138,76,.42), transparent 66%)}
+.orb--soft{width:1000px;height:1000px;left:46%;top:38%;
+  background:radial-gradient(circle, rgba(124,92,255,.18), transparent 60%)}
+.glow-spot{position:absolute;left:50%;top:50%;width:900px;height:900px;margin:-450px 0 0 -450px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(124,92,255,.5), rgba(34,211,238,.18) 38%, transparent 70%);
+  filter:blur(60px);opacity:0;transform:scale(.6)}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vignette{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 50%, transparent 42%, rgba(0,0,0,.55) 88%, rgba(0,0,0,.8) 100%)}
+.leak{position:absolute;left:50%;top:50%;width:2100px;height:2100px;margin:-1050px 0 0 -1050px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(34,211,238,.9),
+    rgba(124,92,255,.5) 34%,
+    transparent 72%);
+  filter:blur(60px);mix-blend-mode:screen;opacity:0;pointer-events:none;z-index:40}
+
+/* teks */
+#dom{position:absolute;inset:0}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden}
+.txtline{display:block;overflow:hidden}
+.hero{font-family:"Space Grotesk",sans-serif;font-weight:500;letter-spacing:-.02em;color:var(--ink);
+  white-space:nowrap;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+.eyebrow{font-family:Inter,sans-serif;font-weight:500;font-size:34px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim)}
+.eyebrow .dot{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:18px;
+  background:#22d3ee;box-shadow:0 0 22px rgba(34,211,238,.9)}
+.lg{font-size:150px;line-height:1.06}
+.md{font-size:124px;line-height:1.08}
+.grad{background:linear-gradient(100deg,#7c5cff 10%,#22d3ee 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.lockup{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:120px;letter-spacing:-.03em;color:var(--ink)}
+.lockup .dot{display:inline-block;width:26px;height:26px;border-radius:50%;margin-left:26px;vertical-align:middle;
+  background:linear-gradient(135deg,#7c5cff,#22d3ee);box-shadow:0 0 34px rgba(124,92,255,.9)}
+#lockup-dot{width:26px;height:26px;border-radius:50%;margin-left:26px;flex:none;
+  background:linear-gradient(135deg,#7c5cff,#22d3ee);box-shadow:0 0 34px rgba(124,92,255,.9)}
+.kicker{font-family:Inter,sans-serif;font-weight:500;font-size:34px;color:var(--dim);letter-spacing:.02em}
+.credit{position:absolute;left:64px;bottom:52px;font-family:Inter,sans-serif;font-weight:400;
+  font-size:28px;color:rgba(155,155,173,.75);letter-spacing:.04em}
+
+#ui{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  display:none;align-items:center;gap:14px;padding:11px 18px;border-radius:16px;
+  background:rgba(14,16,22,.9);border:1px solid rgba(255,255,255,.1);
+  font-size:13px;color:#a0a6b4;z-index:50}
+#ui.on{display:flex}
+#ui button{background:#262a34;color:#fff;border:none;padding:8px 16px;border-radius:9px;font:inherit;cursor:pointer}
+#scrub{width:340px;accent-color:#7c5cff}
+#clock{font-variant-numeric:tabular-nums;min-width:5.2ch;text-align:right}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="world">
+    <i class="orb orb--soft"></i>
+    <i class="orb orb--v"></i>
+    <i class="orb orb--c"></i>
+    <i class="orb orb--o"></i>
+    <div id="dom">
+      <div id="sc-a" class="scene">
+        <div style="position:absolute;left:140px;top:220px">
+          <p class="eyebrow"><span class="dot"></span>creative developer</p>
+        </div>
+      </div>
+      <div id="sc-b" class="scene">
+        <div style="position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center">
+          <p class="hero md txtline" id="line-1">I build <span class="grad">motion</span></p>
+          <p class="hero lg txtline" id="line-2">into everything</p>
+        </div>
+      </div>
+      <div id="sc-c" class="scene">
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center">
+          <div class="glow-spot" id="glow"></div>
+          <div style="display:flex;align-items:center;justify-content:center">
+            <p class="lockup txtline" id="lockup-line">fiozxrrahman</p>
+            <span class="dot" id="lockup-dot"></span>
+          </div>
+          <p class="kicker txtline" id="kicker-line" style="margin-top:44px">creative developer · motion &amp; code</p>
+        </div>
+      </div>
+      <p class="credit">fiozxrrahman.net.eu.org</p>
+    </div>
+  </div>
+  <div class="leak" id="leak"></div>
+  <div class="vignette"></div>
+  <div class="grain"></div>
+</div>
+
+<div id="ui">
+  <button id="btn-play">Pause</button><button id="btn-restart">Restart</button>
+  <input id="scrub" type="range" min="0" max="1000" value="0">
+  <span id="clock">0.00s</span>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+
+/* ---------- split per kata + bangkit dari mask (tanda tangan merek) ---------- */
+function splitWords(el){
+  const text=el.textContent; el.textContent='';
+  const words=text.split(/\s+/); const out=[];
+  words.forEach((w,i)=>{
+    const sp=document.createElement('span'); sp.className='txtline';
+    const inner=document.createElement('span'); inner.textContent=w;
+    sp.appendChild(inner); el.appendChild(sp); out.push(sp);
+  });
+  return out;
+}
+const lineRise=(lines,el,at,{dur=.9,st=.12,ease='power4.out'}={})=>{
+  tl.set(el,{autoAlpha:1},at);
+  const inners=lines.map(l=>l.firstElementChild).filter(Boolean);
+  tl.fromTo(inners,{yPercent:112},{yPercent:0,duration:dur,ease,stagger:st},at);
+};
+
+/* ---------- timeline ---------- */
+const Q=new URLSearchParams(location.search);
+const DURATION=18.0;
+const tl=gsap.timeline({paused:true});
+const rig=$('#world'), leak=$('#leak');
+
+const breathe=(from,to,{z0=1,z1=1.05,origin='50% 50%'}={})=>{
+  tl.set(rig,{transformOrigin:origin},from);
+  tl.fromTo(rig,{scale:z0},{scale:z1,duration:to-from,ease:'sine.inOut',immediateRender:false},from);
+};
+const camThrough=(atCut,{push=1.16,from=1.08,inDur=1.0,outDur=1.2,oOut='50% 50%',oIn='50% 50%'}={})=>{
+  tl.set(rig,{transformOrigin:oOut},atCut-inDur);
+  tl.to(rig,{scale:push,duration:inDur,ease:'power2.in'},atCut-inDur);
+  tl.set(rig,{transformOrigin:oIn,scale:from},atCut);
+  tl.to(rig,{scale:1,duration:outDur,ease:'power3.out'},atCut);
+};
+
+/* orb drift — deterministik, ikut tl.time() */
+const orbV=$('.orb--v'),orbC=$('.orb--c'),orbO=$('.orb--o'),orbSoft=$('.orb--soft');
+tl.to(orbV,{x:130,y:90,duration:9,ease:'sine.inOut',yoyo:true,repeat:1},0);
+tl.to(orbC,{x:-110,y:-70,duration:11,ease:'sine.inOut',yoyo:true,repeat:1},0);
+tl.to(orbO,{x:70,y:-110,duration:13,ease:'sine.inOut',yoyo:true,repeat:1},0);
+tl.to(orbSoft,{x:-60,y:50,scale:1.06,duration:14,ease:'sine.inOut',yoyo:true,repeat:1},0);
+
+const dot=$('.eyebrow .dot');
+tl.fromTo(dot,{scale:1,opacity:1},{scale:2,opacity:0,duration:1.1,ease:'sine.out',immediateRender:false},0);
+tl.fromTo(dot,{opacity:0},{opacity:1,duration:.01},1.1);
+tl.fromTo(dot,{scale:1,opacity:1},{scale:2,opacity:0,duration:1.1,ease:'sine.out',immediateRender:false},2.2);
+
+/* ---- ACT A: eyebrow ---- */
+tl.set('#sc-a',{autoAlpha:1},0);
+lineRise([$('#sc-a .eyebrow')],$('#sc-a'),.4,{dur:.8,st:.2});
+
+/* ---- ACT B: klaim utama ---- */
+tl.set('#sc-b',{autoAlpha:1},3.6);
+const l1=splitWords($('#line-1')), l2=splitWords($('#line-2'));
+l1[2].firstElementChild.classList.add('grad');
+lineRise(l1,$('#line-1'),3.9,{dur:1,st:.14});
+lineRise(l2,$('#line-2'),5.4,{dur:1,st:.14});
+
+const sweep=(at)=>{tl.fromTo(leak,{x:-1500,y:-240,scale:.85},{x:-330,y:130,scale:1.12,duration:1.4,ease:'sine.out',immediateRender:false},at);
+  tl.fromTo(leak,{opacity:0},{opacity:.75,duration:.5,ease:'sine.in',immediateRender:false},at);
+  tl.to(leak,{opacity:0,duration:.9,ease:'sine.out'},at+.5);};
+sweep(7.2);
+
+/* ---- ACT C: lockup + momen istimewa ---- */
+tl.set('#sc-c',{autoAlpha:1},11.6);
+const ll=splitWords($('#lockup-line')), kk=splitWords($('#kicker-line'));
+lineRise(ll,$('#lockup-line'),12.0,{dur:1.05,st:.16});
+tl.fromTo($('#lockup-dot'),{scale:0,opacity:0},{scale:1,opacity:1,duration:.7,ease:'back.out(2.4)',immediateRender:false},13.0);
+lineRise(kk,$('#kicker-line'),14.1,{dur:.9,st:.1});
+tl.fromTo($('#glow'),{opacity:0,scale:.6},{opacity:1,scale:1,duration:1.6,ease:'power3.out',immediateRender:false},12.3);
+tl.fromTo($('#glow'),{opacity:1},{opacity:.75,duration:2,ease:'sine.inOut',immediateRender:false},14.5);
+sweep(15.2);
+
+const stage=$('#stage');
+const fit=()=>{const s=Math.min(innerWidth/1920,innerHeight/1080);
+  stage.style.transform=`translate(-50%,-50%) scale(${s})`;};
+addEventListener('resize',fit); fit();
+
+/* ---------- perekat: autoplay + loop, debug panel ---------- */
+const clock=$('#clock'),scrub=$('#scrub'),btn=$('#btn-play');
+let scrubbing=false;
+(function frame(){ const t=tl.time(); clock.textContent=t.toFixed(2)+'s';
+  if(!scrubbing)scrub.value=String(t/DURATION*1000);
+  requestAnimationFrame(frame); })();
+const toggle=()=>{ if(tl.paused()||tl.progress()>=1){
+    if(tl.progress()>=1)tl.progress(0); tl.play(); btn.textContent='Pause';}
+  else{tl.pause();btn.textContent='Play';} };
+btn.onclick=toggle;
+$('#btn-restart').onclick=()=>{tl.pause(0);tl.play();btn.textContent='Pause';};
+scrub.addEventListener('pointerdown',()=>{scrubbing=true;tl.pause();btn.textContent='Play';});
+addEventListener('pointerup',()=>scrubbing=false);
+scrub.addEventListener('input',()=>{tl.pause();tl.time(scrub.value/1000*DURATION);});
+addEventListener('keydown',e=>{ if(e.code==='Space'){e.preventDefault();toggle();}
+  if(/^[rR]$/.test(e.key)){tl.pause(0);tl.play();}
+  if(/^[hH]$/.test(e.key))$('#ui').classList.toggle('on'); });
+if(Q.has('debug'))$('#ui').classList.add('on');
+tl.eventCallback('onComplete',()=>{tl.play(0);});
+
+const seek=t=>{tl.pause();tl.time(t,false);};
+window.OPENER={tl,DURATION,seek,ready:false};
+document.fonts.ready.then(()=>{window.OPENER.ready=true;if(!Q.has('clean'))tl.play(0);});
+</script>
+</body>
+</html>
