@@ -180,6 +180,143 @@
     .nav__links a:hover::after { transform: scaleX(1); }
   }
 
+  .nav__auth {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn--sm {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .profile__avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    object-fit: cover;
+  }
+
+  .profile__name {
+    font-size: 13px;
+    color: var(--text);
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .profile__logout {
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+  }
+
+  .profile__logout:active { transform: scale(0.96); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .profile__logout:hover { color: var(--text); }
+  }
+
+  /* ---------- Intro overlay ---------- */
+
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    display: grid;
+    place-items: center;
+    will-change: opacity;
+    transition: opacity 0.6s var(--ease-out), visibility 0.6s;
+  }
+
+  #intro.done {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .intro__orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: introDrift 4s var(--ease-in-out) infinite alternate;
+  }
+
+  .intro__orb--v {
+    width: 560px; height: 560px;
+    top: -160px; left: -120px;
+    background: radial-gradient(circle at 40% 40%, rgba(124, 92, 255, 0.75), transparent 65%);
+  }
+
+  .intro__orb--c {
+    width: 480px; height: 480px;
+    bottom: -140px; right: -100px;
+    background: radial-gradient(circle at 60% 50%, rgba(34, 211, 238, 0.6), transparent 65%);
+  }
+
+  @keyframes introDrift {
+    from { transform: translate3d(0, 0, 0) scale(1); }
+    to { transform: translate3d(40px, -30px, 0) scale(1.08); }
+  }
+
+  .intro__center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .intro__word {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(34px, 6vw, 72px);
+    letter-spacing: -0.03em;
+    color: var(--text);
+    overflow: hidden;
+    display: block;
+  }
+
+  .intro__word > span {
+    display: inline-block;
+    transform: translateY(112%);
+  }
+
+  #intro.run .intro__word > span {
+    animation: rise 0.9s var(--ease-out) forwards;
+  }
+
+  .intro__dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    margin-left: 18px;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    box-shadow: 0 0 24px rgba(124, 92, 255, 0.9);
+    transform: scale(0);
+    flex: none;
+  }
+
+  #intro.run .intro__dot {
+    animation: introPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s forwards;
+  }
+
+  @keyframes introPop {
+    to { transform: scale(1); }
+  }
+
   /* ---------- Hero ---------- */
 
   .hero {
@@ -622,6 +759,9 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+    #intro {
+      display: none;
+    }
     .orb, .marquee__track, .scroll-hint__line, .eyebrow__pulse {
       animation: none !important;
     }
@@ -645,6 +785,16 @@
 
 <div class="grain" aria-hidden="true"></div>
 
+<!-- ======= Intro lockup ======= -->
+<div id="intro" aria-hidden="true">
+  <div class="intro__orb intro__orb--v"></div>
+  <div class="intro__orb intro__orb--c"></div>
+  <div class="intro__center">
+    <p class="intro__word" id="intro-word">fiozxrrahman</p>
+    <span class="intro__dot"></span>
+  </div>
+</div>
+
 <!-- ======= Nav ======= -->
 <header class="nav">
   <div class="wrap nav__inner">
@@ -660,6 +810,14 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
+    <div class="nav__auth" id="auth" hidden>
+      <button class="btn btn--ghost btn--sm" id="btn-login">Log in</button>
+      <div class="profile" id="profile" hidden>
+        <img class="profile__avatar" id="profile-avatar" alt="" />
+        <span class="profile__name" id="profile-name"></span>
+        <button class="profile__logout" id="btn-logout" title="Log out">Log out</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -877,16 +1035,110 @@
 </footer>
 
 <script>
+  // ---------- Auth0 (Universal Login). Fill AUTH0.domain/clientId to enable. ----------
+  var AUTH0 = {
+    domain: "",          // e.g. "your-tenant.us.auth0.com"
+    clientId: "",        // SPA application client id
+    audience: "",        // optional: API audience
+    redirectUri: window.location.origin + window.location.pathname
+  };
+
+  (function () {
+    var configured = AUTH0.domain && AUTH0.clientId;
+    var auth = document.getElementById("auth");
+    var btnLogin = document.getElementById("btn-login");
+    var profile = document.getElementById("profile");
+    var avatar = document.getElementById("profile-avatar");
+    var nameEl = document.getElementById("profile-name");
+    var btnLogout = document.getElementById("btn-logout");
+    var fallbackAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%237c5cff'/%3E%3Ctext x='32' y='40' font-family='sans-serif' font-size='26' font-weight='700' text-anchor='middle' fill='white'%3Ef%3C/text%3E%3C/svg%3E";
+    if (!configured) { console.info("Auth0 not configured — login UI hidden."); return; }
+    avatar.onerror = function () { avatar.src = fallbackAvatar; };
+    if (typeof createAuth0Client !== "function") { auth.hidden = false; return; }
+
+    var client = null;
+    createAuth0Client({
+      domain: AUTH0.domain,
+      clientId: AUTH0.clientId,
+      authorizationParams: {
+        audience: AUTH0.audience || undefined,
+        redirect_uri: AUTH0.redirectUri
+      }
+    }).then(function (c) {
+      client = c;
+      var q = new URLSearchParams(window.location.search);
+      if (q.has("code") && q.has("state")) {
+        return client.handleRedirectCallback().then(function () {
+          history.replaceState(null, "", window.location.pathname);
+        });
+      }
+    }).then(function () {
+      return client.isAuthenticated();
+    }).then(function (isAuth) {
+      auth.hidden = false;
+      if (isAuth) return client.getUser();
+    }).then(function (user) {
+      if (user) {
+        btnLogin.hidden = true;
+        profile.hidden = false;
+        nameEl.textContent = user.name || user.nickname || user.email || "";
+        avatar.src = user.picture || fallbackAvatar;
+        avatar.alt = "Avatar of " + nameEl.textContent;
+      } else {
+        btnLogin.hidden = false;
+      }
+    });
+
+    btnLogin.addEventListener("click", function () { client.loginWithRedirect(); });
+    btnLogout.addEventListener("click", function () {
+      client.logout({ logoutParams: { returnTo: window.location.origin + window.location.pathname } });
+    });
+  })();
+
+  // ---------- Intro lockup ----------
+  var intro = document.getElementById("intro");
+  var introWord = document.getElementById("intro-word");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var heroStarted = false;
+  var startHero = function () {
+    if (heroStarted) return;
+    var frags = document.querySelectorAll(".hero-title .wi");
+    if (!frags.length) { requestAnimationFrame(startHero); return; }
+    heroStarted = true;
+    var heroEl = document.querySelector(".hero");
+    frags.forEach(function (el, i) {
+      el.style.animationDelay = (80 + i * 60) + "ms";
+    });
+    requestAnimationFrame(function () {
+      document.body.classList.add("hero");
+      heroEl.classList.add("in");
+    });
+  };
+  var finishIntro = function () {
+    if (intro.classList.contains("done")) return;
+    intro.classList.add("done");
+    setTimeout(function () { intro.remove(); }, 700);
+    startHero();
+  };
+  if (reduceMotion || !intro) {
+    if (intro) intro.remove();
+    startHero();
+  } else {
+    intro.innerHTML = '<span class="intro__word"><span>' + introWord.textContent + '</span></span><span class="intro__dot"></span>';
+    introWord.remove();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { intro.classList.add("run"); });
+    });
+    setTimeout(finishIntro, 1900);
+    intro.addEventListener("click", finishIntro);
+  }
+
   // ---------- Hero kinetic typography ----------
   var hero = document.getElementById("hero-title");
   var words = "I build motion into everything".split(" ");
   hero.innerHTML = words.map(function (w, i) {
     return '<span class="w"><span class="wi">' + w + "</span></span> ";
   }).join("");
-  var frags = hero.querySelectorAll(".wi");
-  frags.forEach(function (el, i) {
-    el.style.animationDelay = (80 + i * 60) + "ms";
-  });
   // highlight the last two words
   var ws = hero.querySelectorAll(".w");
   if (ws.length >= 2) {
@@ -895,12 +1147,6 @@
     last.querySelector(".wi").classList.add("accent");
     prev.querySelector(".wi").classList.add("accent");
   }
-  requestAnimationFrame(function () {
-    document.body.classList.add("hero");
-    requestAnimationFrame(function () {
-      document.querySelector(".hero").classList.add("in");
-    });
-  });
 
   // ---------- Scroll reveal ----------
   var io = new IntersectionObserver(function (entries) {

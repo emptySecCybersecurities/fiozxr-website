@@ -15,10 +15,21 @@ Animated portfolio site and motion-graphics opener for **fiozxrrahman**, plus th
 
 One self-contained HTML file. Highlights:
 
+- **Animated intro lockup** — "fiozxrrahman" rises out of a mask with a popping gradient dot over drifting orbs, then hands off to the hero (skipped under reduced motion)
+- **Auth0 login** — universal login integration; profile chip with avatar + logout when signed in (requires filling in `AUTH0` in the script)
 - **Kinetic typography hero** — masked word-by-word rise, gradient accent, screen-reader aware (`aria-label` + hidden fragments)
 - **Scroll reveals** — IntersectionObserver-driven, transform/opacity only
 - **Micro-interactions** — hover lift/glow cards, press feedback, underlined nav, gated behind `(hover: hover)`
 - **Reduced motion** — fully honored (`prefers-reduced-motion`)
+
+### Enabling Auth0
+
+1. Create a tenant + SPA application in the [Auth0 dashboard](https://manage.auth0.com)
+2. Add `http://localhost:8000` (or your live URL) to **Allowed Callback URLs** and **Allowed Logout URLs**
+3. In `index.html`, set `AUTH0.domain` and `AUTH0.clientId` (near the top of the script). Optional: `AUTH0.audience`
+4. Open the site — "Log in" appears in the nav; after login the profile chip replaces it
+
+Until configured, the login UI stays hidden and the site works as before.
 
 ## The video — `video/motion-opener.mp4`
 
